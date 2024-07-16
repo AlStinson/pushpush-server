@@ -31,7 +31,7 @@ public class Game {
     Team winner;
     int turn;
     Team nextPlayer;
-    Position ballPosition;
+    Vector2Int ballPosition;
     final Board board;
     final List<Move> moves;
     final List<Move> validMoves;
@@ -99,7 +99,7 @@ public class Game {
         if (winner != null) return;
         validMoves.clear();
 
-        List<Position> validPositions = board.entrySet()
+        List<Vector2Int> validPositions = board.entrySet()
                 .stream()
                 .filter(k -> k.getValue().belongsTo(nextPlayer))
                 .map(Map.Entry::getKey)

@@ -1,22 +1,13 @@
 package com.pushpush.core;
 
-import com.pushpush.core.utils.Vector2Int;
+import lombok.experimental.UtilityClass;
 
-public class Position extends Vector2Int<Position> {
+@UtilityClass
+public class Position {
 
-    public static final Position CENTER = new Position(4,4);
+    public final Vector2Int CENTER = new Vector2Int(4,4);
 
-    public Position(int x, int y) {
-        super(x, y);
-    }
-
-    @Override
-    protected Position create(int x, int y) {
-        return new Position(x, y);
-    }
-
-    @Override
-    protected Position center() {
-        return CENTER;
+    public boolean areOpposite(Vector2Int first, Vector2Int second) {
+        return first.isOpposite(second, CENTER);
     }
 }

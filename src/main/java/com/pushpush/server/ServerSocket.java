@@ -1,11 +1,13 @@
 package com.pushpush.server;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pushpush.core.Game;
 import com.pushpush.core.Move;
 import com.pushpush.server.dto.GameDto;
+import com.pushpush.server.dto.Message;
 import com.pushpush.server.dto.MoveDto;
-import com.pushpush.server.dto.Response;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnError;
@@ -22,13 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@ServerEndpoint("/ws")
+@ServerEndpoint("/v1/ws")
 @ApplicationScoped
 @RequiredArgsConstructor
 @Slf4j
 public class ServerSocket {
     private final List<Session> sessions = new ArrayList<>();
-    private final Game game = new Game();
+    private Game game = new Game();
 
     private final ObjectMapper objectMapper;
 
@@ -37,7 +39,7 @@ public class ServerSocket {
     public void onOpen(Session session) {
         log.info("Connected " + session.getId());
         sessions.add(session);
-        sendResponse(false).accept(session.getAsyncRemote());
+        sendResponse().accept(session.getAsyncRemote());
     }
 
     @OnClose
@@ -53,22 +55,41 @@ public class ServerSocket {
 
     @SneakyThrows
     @OnMessage
-    public void onMessage(Session session, String message) {
-        log.trace("Message " + session.getId() + " " + message);
-        Move move = objectMapper.readValue(message, MoveDto.class).toMove();
-        boolean moveMade = game.makeMove(move);
-        log.info("Move: {}, Made: ", move, moveMade);
+    public void onMessage(Session session, String string) {
+        log.trace("Message " + session.getId() + " " + string);
+        Message message = objectMapper.readValue(string, Message.class);
+        switch (message.getKind()) {
+            case "move" -> {
+                Move move = getPayload(string, MoveDto.class).toMove();
+                boolean moveMade = game.makeMove(move);
+                log.info("Move: {}, Made: {}", move, moveMade);
+            }
+            case "reset" -> {
+                game = new Game();
+            }
+            default -> {
+                throw new IllegalArgumentException();
+            }
+        }
+
         sessions.stream()
                 .map(Session::getAsyncRemote)
-                .forEach(sendResponse(moveMade));
+                .forEach(sendResponse());
     }
 
-    private Consumer<RemoteEndpoint.Async> sendResponse(boolean moveMade) {
-        return endpoint -> endpoint.sendText(getResponse(moveMade));
+    private Consumer<RemoteEndpoint.Async> sendResponse() {
+        return endpoint -> endpoint.sendText(getResponse());
     }
 
     @SneakyThrows
-    private String getResponse(boolean changed) {
-        return objectMapper.writeValueAsString(new Response(changed, GameDto.fromGame(game)));
+    private <T> T getPayload(String value, Class<T> payload) {
+        JavaType type = objectMapper.getTypeFactory().constructParametricType(Message.class, payload);
+        Message<T> message = objectMapper.readValue(value, type);
+        return message.getPayload();
+    }
+
+    @SneakyThrows
+    private String getResponse() {
+        return objectMapper.writeValueAsString(GameDto.fromGame(game));
     }
 }

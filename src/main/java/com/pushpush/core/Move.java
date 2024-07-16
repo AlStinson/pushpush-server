@@ -7,17 +7,14 @@ import static com.pushpush.core.Board.BLACK_BORDER_ZONE;
 import static com.pushpush.core.Board.LEFT_BORDER_ZONE;
 import static com.pushpush.core.Board.RIGHT_BORDER_ZONE;
 import static com.pushpush.core.Board.WHITE_BORDER_ZONE;
-import static com.pushpush.core.Direction.DOWN;
-import static com.pushpush.core.Direction.LEFT;
-import static com.pushpush.core.Direction.RIGHT;
-import static com.pushpush.core.Direction.UP;
+import static com.pushpush.core.Direction.*;
 import static com.pushpush.core.MoveKind.NORMAL;
 
 @Value
 public class Move {
 
-    Position initialPosition;
-    Direction direction;
+    Vector2Int initialPosition;
+    Vector2Int direction;
     MoveKind kind;
 
     public boolean isNormal() {
@@ -25,22 +22,23 @@ public class Move {
     }
 
     public boolean isOpposite(Move other) {
-        return initialPosition.isOpposite(other.initialPosition)
-                && direction.isOpposite(other.direction)
+        return Position.areOpposite(initialPosition, other.initialPosition)
+                && Direction.areOpposite(direction, other.direction)
                 && isNormal() && other.isNormal();
     }
 
-    public Position getFinalPosition() {
+    public Vector2Int getFinalPosition() {
         return initialPosition.add(direction);
     }
 
-    public Direction getNextDirection() {
-        Direction nextDirection = direction;
+    public Vector2Int getNextDirection() {
+        Vector2Int nextDirection = direction;
+        Vector2Int nextPosition = getFinalPosition();
         if (kind == MoveKind.DEFLECTED) {
-            if (WHITE_BORDER_ZONE.contains(initialPosition)) nextDirection = nextDirection.add(UP);
-            if (BLACK_BORDER_ZONE.contains(initialPosition)) nextDirection = nextDirection.add(DOWN);
-            if (LEFT_BORDER_ZONE.contains(initialPosition)) nextDirection = nextDirection.add(RIGHT);
-            if (RIGHT_BORDER_ZONE.contains(initialPosition)) nextDirection = nextDirection.add(LEFT);
+            if (WHITE_BORDER_ZONE.contains(nextPosition)) nextDirection = nextDirection.add(UP);
+            if (BLACK_BORDER_ZONE.contains(nextPosition)) nextDirection = nextDirection.add(DOWN);
+            if (LEFT_BORDER_ZONE.contains(nextPosition)) nextDirection = nextDirection.add(RIGHT);
+            if (RIGHT_BORDER_ZONE.contains(nextPosition)) nextDirection = nextDirection.add(LEFT);
         }
         return nextDirection;
     }

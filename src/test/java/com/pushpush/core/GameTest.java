@@ -14,15 +14,15 @@ class GameTest {
     @Test
     void initialBoardValidMove() {
         Game game = new Game();
-        assertTrue(game.makeMove(new Move(new Position(1, 1), new Direction(0, 1), NORMAL)));
+        assertTrue(game.makeMove(new Move(new Vector2Int(1, 1), new Vector2Int(0, 1), NORMAL)));
     }
 
     @Test
     void after3RepetitionsTheGameFinishAsDraw() {
-        Move moveWhiteUp = new Move(new Position(1, 1), UP, NORMAL);
-        Move moveWhiteDown = new Move(new Position(1, 2), DOWN, NORMAL);
-        Move moveBlackUp = new Move(new Position(1, 6), UP, NORMAL);
-        Move moveBlackDown = new Move(new Position(1, 7), DOWN, NORMAL);
+        Move moveWhiteUp = new Move(new Vector2Int(1, 1), UP, NORMAL);
+        Move moveWhiteDown = new Move(new Vector2Int(1, 2), DOWN, NORMAL);
+        Move moveBlackUp = new Move(new Vector2Int(1, 6), UP, NORMAL);
+        Move moveBlackDown = new Move(new Vector2Int(1, 7), DOWN, NORMAL);
 
         Game game = new Game();
         assertTrue(game.makeMove(moveWhiteUp));

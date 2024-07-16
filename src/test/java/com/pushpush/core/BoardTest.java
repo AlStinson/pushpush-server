@@ -11,8 +11,8 @@ class BoardTest {
     void equivalentBoardsAreEquals() {
         Board board1 = new Board();
         Board board2 = new Board();
-        board1.put(new Position(1, 2), BALL);
-        board2.put(new Position(1, 2), BALL);
+        board1.put(new Vector2Int(1, 2), BALL);
+        board2.put(new Vector2Int(1, 2), BALL);
         assertEquals(board1, board2);
     }
 

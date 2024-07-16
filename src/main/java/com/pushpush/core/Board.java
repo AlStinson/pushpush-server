@@ -1,6 +1,5 @@
 package com.pushpush.core;
 
-
 import com.pushpush.core.utils.zone.Rectangle;
 import com.pushpush.core.utils.zone.Zone;
 import com.pushpush.core.utils.zone.ZonesUnion;
@@ -20,9 +19,9 @@ import static com.pushpush.core.Piece.W3;
 import static com.pushpush.core.Piece.W4;
 
 @NoArgsConstructor
-public class Board extends HashMap<Position, Piece> {
+public class Board extends HashMap<Vector2Int, Piece> {
 
-    public Board(Map<Position, Piece> board) {
+    public Board(Map<Vector2Int, Piece> board) {
         super(board);
     }
 
@@ -56,14 +55,14 @@ public class Board extends HashMap<Position, Piece> {
         return board;
     }
 
-    public static Team getGoalZone(Position position) {
+    public static Team getGoalZone(Vector2Int position) {
         if (WHITE_GOAL_ZONE.contains(position)) return Team.WHITE;
         if (BLACK_GOAL_ZONE.contains(position)) return Team.BLACK;
         return Team.NONE;
     }
 
     private void put(int x, int y, Piece p) {
-        put(new Position(x, y), p);
+        put(new Vector2Int(x, y), p);
     }
 
     @Override
@@ -72,7 +71,7 @@ public class Board extends HashMap<Position, Piece> {
         for (int y = 7; y > 0; y--) {
             builder.append("|");
             for (int x = 1; x <= 7; x++) {
-                Piece piece = get(new Position(x, y));
+                Piece piece = get(new Vector2Int(x, y));
                 builder.append(" ");
                 builder.append(piece == null ? "  " : piece.toString());
                 builder.append(" |");

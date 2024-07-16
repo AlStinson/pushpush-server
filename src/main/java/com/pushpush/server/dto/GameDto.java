@@ -3,6 +3,7 @@ package com.pushpush.server.dto;
 import com.pushpush.core.Game;
 import com.pushpush.core.Piece;
 import com.pushpush.core.Team;
+import com.pushpush.core.Vector2Int;
 import lombok.Value;
 
 import java.util.AbstractMap;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 public class GameDto {
     Team winner;
     Team nextPlayer;
-    Map<Vector2IntDto, Piece> board;
+    Map<Vector2Int, Piece> board;
     List<MoveDto> validMoves;
 
     public static GameDto fromGame(Game game) {
@@ -24,9 +25,6 @@ public class GameDto {
                 game.getBoard()
                         .entrySet()
                         .stream()
-                        .map(entry -> new AbstractMap.SimpleEntry<>(
-                                Vector2IntDto.fromVector2Int(entry.getKey()),
-                                entry.getValue()))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
                 game.getValidMoves().stream().map(MoveDto::fromMove).toList()
         );
