@@ -32,11 +32,15 @@
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-arc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
             <artifactId>quarkus-websockets</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-arc</artifactId>
+            <artifactId>quarkus-smallrye-health</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
