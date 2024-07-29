@@ -49,6 +49,19 @@ public class Game {
         generateValidMoves();
     }
 
+    public Game(Board board, Team nextPlayer) {
+        this.winner = null;
+        this.turn = 3;
+        this.nextPlayer = nextPlayer;
+        this.ballPosition = board.entrySet().stream().filter(entry -> entry.getValue().equals(BALL)).findFirst().get().getKey();
+        this.board = board;
+        this.moves = new ArrayList<>();
+        this.validMoves = new ArrayList<>();
+        this.boardRecord = new ArrayList<>(Collections.singletonList(new Board(board)));
+        generateValidMoves();
+        checkWinner();
+    }
+
     public boolean setWinner(Team t) {
         if (hasFinished()) return false;
         winner = t;

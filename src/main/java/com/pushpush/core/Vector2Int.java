@@ -30,7 +30,7 @@ public class Vector2Int implements Zone {
     }
 
     public boolean isOpposite(Vector2Int other, Vector2Int center) {
-        return other == getOpposite(center);
+        return other.equals(getOpposite(center));
     }
 
     public boolean isInZone(Zone zone) {

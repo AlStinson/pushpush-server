@@ -7,6 +7,7 @@ import static com.pushpush.core.Direction.UP;
 import static com.pushpush.core.MoveKind.NORMAL;
 import static com.pushpush.core.Team.NONE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GameTest {
@@ -35,6 +36,16 @@ class GameTest {
         assertTrue(game.makeMove(moveBlackUp));
         assertTrue(game.hasFinished());
         assertEquals(NONE, game.getWinner());
+    }
 
+    @Test
+    void symmetricMoveIsNotValid() {
+        Game game = new Game();
+        game.makeMove(move(4,1, UP, NORMAL));
+        assertFalse(game.getValidMoves().contains(move(4, 7, DOWN, NORMAL)));
+    }
+
+    private Move move(int x, int y, Vector2Int dir, MoveKind kind) {
+        return new Move(new Vector2Int(x, y), dir, kind);
     }
 }
