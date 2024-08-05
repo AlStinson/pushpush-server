@@ -31,7 +31,7 @@ public class GamesManager {
         boolean added = gameSession.addAs(session, kind);
         if (added) {
             gamesSessionByPlayer.put(session, gameSession);
-            updateClients(gameSession);
+            updateClients(gameSession, false);
 
         }
         return added;
@@ -44,14 +44,14 @@ public class GamesManager {
 
     public void play(Session session, Move move) {
         GameSession gameSession = gamesSessionByPlayer.get(session);
-        gameSession.play(session, move);
-        updateClients(gameSession);
+        boolean moved = gameSession.play(session, move);
+        updateClients(gameSession, moved);
     }
 
-    private void updateClients(GameSession gameSession) {
-        if (gameSession.white != null) sendResponse(GameDto.fromGame(gameSession.game, Team.WHITE)).accept(gameSession.white);
-        if (gameSession.black != null) sendResponse(GameDto.fromGame(gameSession.game, Team.BLACK)).accept(gameSession.black);
-        gameSession.viewers.stream().forEach(sendResponse(GameDto.fromGame(gameSession.game, null)));
+    private void updateClients(GameSession gameSession, boolean moved) {
+        if (gameSession.white != null) sendResponse(GameDto.fromGame(gameSession.game, Team.WHITE, moved)).accept(gameSession.white);
+        if (gameSession.black != null) sendResponse(GameDto.fromGame(gameSession.game, Team.BLACK, moved)).accept(gameSession.black);
+        gameSession.viewers.stream().forEach(sendResponse(GameDto.fromGame(gameSession.game, null, moved)));
     }
 
     private GameSession createGameSession(UUID gameId) {

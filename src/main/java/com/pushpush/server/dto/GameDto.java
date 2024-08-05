@@ -17,21 +17,9 @@ public class GameDto {
     Team nextPlayer;
     Map<Vector2Int, Piece> board;
     List<MoveDto> validMoves;
+    boolean moved;
 
-
-    public static GameDto fromGame(Game game) {
-        return new GameDto(
-                game.getWinner(),
-                game.getNextPlayer(),
-                game.getBoard()
-                        .entrySet()
-                        .stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
-                game.getValidMoves().stream().map(MoveDto::fromMove).toList()
-        );
-    }
-
-    public static GameDto fromGame(Game game, Team team) {
+    public static GameDto fromGame(Game game, Team team, boolean moved) {
         return new GameDto(
                 game.getWinner(),
                 game.getNextPlayer(),
@@ -41,7 +29,8 @@ public class GameDto {
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
                 game.getNextPlayer() == team ?
                         game.getValidMoves().stream().map(MoveDto::fromMove).toList() :
-                        Collections.emptyList()
+                        Collections.emptyList(),
+                moved
         );
     }
 

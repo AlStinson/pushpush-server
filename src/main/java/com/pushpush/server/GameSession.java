@@ -42,20 +42,20 @@ public class GameSession {
         else viewers.remove(session);
     }
 
-    public void play(Session session, Move move) {
+    public boolean play(Session session, Move move) {
         switch (game.getNextPlayer()) {
             case WHITE -> {
-                if (session != white) return;
+                if (session != white) return false;
             }
             case BLACK -> {
-                if (session != black) return;
+                if (session != black) return false;
             }
             default -> {
-                return;
+                return false;
             }
         }
 
-        game.makeMove(move);
+        return game.makeMove(move);
     }
 
 
