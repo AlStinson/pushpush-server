@@ -2,7 +2,10 @@ package com.pushpush.server;
 
 import com.pushpush.core.Game;
 import com.pushpush.core.Move;
+import com.pushpush.core.Team;
+import com.pushpush.server.dto.message.GameMessage;
 import jakarta.websocket.Session;
+import lombok.Synchronized;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +16,7 @@ public class GameSession {
     List<Session> viewers = new ArrayList<>();
     Game game = new Game();
 
+    @Synchronized("viewers")
     public boolean addAs(Session session, String kind) {
         switch (kind) {
             case "white" -> {
@@ -36,6 +40,7 @@ public class GameSession {
         }
     }
 
+    @Synchronized("viewers")
     public void remove(Session session) {
         if (white == session) white = null;
         else if (black == session) black = null;
@@ -58,5 +63,15 @@ public class GameSession {
         return game.makeMove(move);
     }
 
+    public boolean isEmpty() {
+        return white == null && black == null && viewers.isEmpty();
+    }
+
+    @Synchronized("viewers")
+    public void updateClients(boolean moved) {
+        if (white != null) GameMessage.of(game, Team.WHITE, moved).sendTo(white);
+        if (black != null) GameMessage.of(game, Team.BLACK, moved).sendTo(black);
+        viewers.forEach(GameMessage.of(game, null, moved)::sendTo);
+    }
 
 }

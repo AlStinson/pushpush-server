@@ -1,4 +1,4 @@
-package com.pushpush.server.dto;
+package com.pushpush.server.dto.pushpush;
 
 import com.pushpush.core.Game;
 import com.pushpush.core.Piece;

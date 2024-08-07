@@ -7,11 +7,11 @@ import java.util.List;
 
 @UtilityClass
 public class EnumUtils {
-    public static byte byteOrdinal(Enum e) {
+    public static <E extends Enum<E>> byte byteOrdinal(Enum<E> e) {
         return (byte) e.ordinal();
     }
 
-    public static <E extends Enum> List<E> listOf(Class<E> enumClass) {
+    public static <E extends Enum<E>> List<E> listOf(Class<E> enumClass) {
         return Arrays.asList(enumClass.getEnumConstants());
     }
 }
