@@ -1,6 +1,7 @@
 com.aayushatharva.brotli4j:brotli4j::jar:1.16.0
 com.aayushatharva.brotli4j:native-windows-x86_64::jar:1.16.0
 com.aayushatharva.brotli4j:service::jar:1.16.0
+com.cronutils:cron-utils::jar:9.2.1
 com.fasterxml.jackson.core:jackson-annotations::jar:2.17.2
 com.fasterxml.jackson.core:jackson-core::jar:2.17.2
 com.fasterxml.jackson.core:jackson-databind::jar:2.17.2
@@ -22,6 +23,10 @@ io.netty:netty-resolver-dns::jar:4.1.108.Final
 io.netty:netty-resolver::jar:4.1.108.Final
 io.netty:netty-transport-native-unix-common::jar:4.1.108.Final
 io.netty:netty-transport::jar:4.1.108.Final
+io.opentelemetry.instrumentation:opentelemetry-instrumentation-api::jar:1.32.0
+io.opentelemetry:opentelemetry-api::jar:1.32.0
+io.opentelemetry:opentelemetry-context::jar:1.32.0
+io.opentelemetry:opentelemetry-extension-incubator::jar:1.32.0-alpha
 io.quarkus.arc:arc::jar:3.12.3
 io.quarkus.http:quarkus-http-websocket-core::jar:5.2.2.Final
 io.quarkus.http:quarkus-http-websocket-vertx::jar:5.2.2.Final
@@ -37,6 +42,11 @@ io.quarkus:quarkus-jackson::jar:3.12.3
 io.quarkus:quarkus-jsonp::jar:3.12.3
 io.quarkus:quarkus-mutiny::jar:3.12.3
 io.quarkus:quarkus-netty::jar:3.12.3
+io.quarkus:quarkus-scheduler-api::jar:3.12.3
+io.quarkus:quarkus-scheduler-common::jar:3.12.3
+io.quarkus:quarkus-scheduler-kotlin::jar:3.12.3
+io.quarkus:quarkus-scheduler-spi::jar:3.12.3
+io.quarkus:quarkus-scheduler::jar:3.12.3
 io.quarkus:quarkus-security-runtime-spi::jar:3.12.3
 io.quarkus:quarkus-smallrye-context-propagation::jar:3.12.3
 io.quarkus:quarkus-smallrye-health::jar:3.12.3
@@ -99,6 +109,7 @@ org.eclipse.microprofile.config:microprofile-config-api::jar:3.1
 org.eclipse.microprofile.context-propagation:microprofile-context-propagation-api::jar:1.3
 org.eclipse.microprofile.health:microprofile-health-api::jar:4.0.1
 org.eclipse.parsson:parsson::jar:1.1.6
+org.glassfish.expressly:expressly::jar:5.0.0
 org.jboss.logging:jboss-logging-annotations::jar:2.2.1.Final
 org.jboss.logging:jboss-logging::jar:3.6.0.Final
 org.jboss.logmanager:jboss-logmanager::jar:3.0.6.Final
