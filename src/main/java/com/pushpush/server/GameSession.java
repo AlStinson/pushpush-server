@@ -63,6 +63,13 @@ public class GameSession {
         return game.makeMove(move);
     }
 
+
+    public boolean surrender(Session session) {
+        if (session == white) return game.setWinner(Team.BLACK);
+        if (session == black) return game.setWinner(Team.WHITE);
+        return false;
+    }
+
     public boolean isEmpty() {
         return white == null && black == null && viewers.isEmpty();
     }

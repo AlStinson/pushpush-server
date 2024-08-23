@@ -2,8 +2,10 @@ package com.pushpush.server;
 
 import com.pushpush.core.Move;
 import com.pushpush.server.dto.message.MoveMessage;
+import com.pushpush.server.dto.message.SimpleMessage;
 import com.pushpush.server.dto.message.StringMessage;
 import com.pushpush.server.exception.SpotNotAvailableException;
+import com.pushpush.server.exception.UnexpectedMessageException;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.websocket.OnClose;
@@ -67,10 +69,21 @@ public class GamesSocket {
     @OnMessage
     public void onMessage(Session session, String content) {
         log.trace("Message " + session.getId() + " " + content);
-        Move move = MoveMessage.of(content).getMove().toMove();
-        GameSession gameSession = gamesSessionByPlayer.get(session);
-        boolean moved = gameSession.play(session, move);
-        gameSession.updateClients(moved);
+        switch (SimpleMessage.of(content).getKind()) {
+            case GAME_UPDATE -> {
+                Move move = MoveMessage.of(content).getMove().toMove();
+                GameSession gameSession = gamesSessionByPlayer.get(session);
+                boolean moved = gameSession.play(session, move);
+                gameSession.updateClients(moved);
+            }
+            case SURRENDER -> {
+                GameSession gameSession = gamesSessionByPlayer.get(session);
+                boolean gameEnded = gameSession.surrender(session);
+                gameSession.updateClients(gameEnded);
+            }
+            default -> throw new UnexpectedMessageException(content);
+        }
+
     }
 
 

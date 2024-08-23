@@ -9,4 +9,7 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 public class SimpleMessage implements Message {
     MessageKind kind;
+    public static SimpleMessage of(String content) {
+        return Message.readValue(content, SimpleMessage.class);
+    }
 }
