@@ -4,5 +4,6 @@ public enum MessageKind {
     MATCHMAKING,
     GAME_UPDATE,
     SURRENDER,
+    RESTART,
     ERROR,
 }

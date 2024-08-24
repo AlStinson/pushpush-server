@@ -11,6 +11,7 @@ import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
+import lombok.Locked;
 import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
@@ -29,14 +30,14 @@ public class MatchmakingSocket {
     private final LinkedBlockingQueue<Session> queue = new LinkedBlockingQueue<>();
 
     @OnOpen
-    @Synchronized("queue")
+    @Locked
     public void onOpen(Session session) {
         log.info("{} joined the matchmaking queue", session.getId());
         queue.add(session);
     }
 
     @OnClose
-    @Synchronized("queue")
+    @Locked
     public void onClose(Session session) {
         log.info("{} leaved the matchmaking queue", session.getId());
         queue.remove(session);

@@ -1,10 +1,11 @@
-package com.pushpush.server;
+package com.pushpush.server.model;
 
 import com.pushpush.core.Game;
 import com.pushpush.core.Move;
 import com.pushpush.core.Team;
 import com.pushpush.server.dto.message.GameMessage;
 import jakarta.websocket.Session;
+import lombok.Locked;
 import lombok.Synchronized;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class GameSession {
     List<Session> viewers = new ArrayList<>();
     Game game = new Game();
 
-    @Synchronized("viewers")
+    @Locked
     public boolean addAs(Session session, String kind) {
         switch (kind) {
             case "white" -> {
@@ -40,13 +41,14 @@ public class GameSession {
         }
     }
 
-    @Synchronized("viewers")
+    @Locked
     public void remove(Session session) {
         if (white == session) white = null;
         else if (black == session) black = null;
         else viewers.remove(session);
     }
 
+    @Locked
     public boolean play(Session session, Move move) {
         switch (game.getNextPlayer()) {
             case WHITE -> {
@@ -63,18 +65,30 @@ public class GameSession {
         return game.makeMove(move);
     }
 
-
+    @Locked
     public boolean surrender(Session session) {
         if (session == white) return game.setWinner(Team.BLACK);
         if (session == black) return game.setWinner(Team.WHITE);
         return false;
     }
 
+    @Locked
+    public boolean restart() {
+        if (game.hasFinished()) {
+            game = new Game();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Locked
     public boolean isEmpty() {
         return white == null && black == null && viewers.isEmpty();
     }
 
-    @Synchronized("viewers")
+
+    @Locked
     public void updateClients(boolean moved) {
         if (white != null) GameMessage.of(game, Team.WHITE, moved).sendTo(white);
         if (black != null) GameMessage.of(game, Team.BLACK, moved).sendTo(black);

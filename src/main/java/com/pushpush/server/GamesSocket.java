@@ -6,8 +6,10 @@ import com.pushpush.server.dto.message.SimpleMessage;
 import com.pushpush.server.dto.message.StringMessage;
 import com.pushpush.server.exception.SpotNotAvailableException;
 import com.pushpush.server.exception.UnexpectedMessageException;
-import io.quarkus.scheduler.Scheduled;
+import com.pushpush.server.model.GameSession;
+import com.pushpush.server.model.SyncHashMap;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnError;
 import jakarta.websocket.OnMessage;
@@ -17,11 +19,8 @@ import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @ServerEndpoint("/v3/ws/game/{gameId}/{kind}")
@@ -29,26 +28,29 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class GamesSocket {
-    private final Map<Session, GameSession> gamesSessionByPlayer = new HashMap<>();
-    private final Map<UUID, GameSession> gameSessionByGameId = new HashMap<>();
+
+    @Named("gameSessionByPlayer")
+    private final SyncHashMap<Session, GameSession> gameSessionByPlayer;
+
+    @Named("gameSessionByGameId")
+    private final SyncHashMap<UUID, GameSession> gameSessionByGameId;
 
     @OnOpen
     @SneakyThrows
-    @Synchronized("gameSessionByGameId")
     public void onOpen(Session session, @PathParam("gameId") String gameIdString, @PathParam("kind") String kind) {
         log.info("{} connected to game {} as {} ", session.getId(), gameIdString, kind);
         UUID gameId = UUID.fromString(gameIdString);
-        GameSession gameSession = gameSessionByGameId.containsKey(gameId) ? gameSessionByGameId.get(gameId) : createGameSession(gameId);
+        GameSession gameSession =  gameSessionByGameId.getOrPut(gameId, new GameSession());
         boolean added = gameSession.addAs(session, kind);
         if (!added) throw new SpotNotAvailableException(gameId, kind);
-        gamesSessionByPlayer.put(session, gameSession);
+        gameSessionByPlayer.put(session, gameSession);
         gameSession.updateClients(false);
     }
 
     @OnClose
     public void onClose(Session session) {
         log.info("{} disconnected", session.getId());
-        GameSession gameSession = gamesSessionByPlayer.remove(session);
+        GameSession gameSession = gameSessionByPlayer.remove(session);
         if (gameSession != null) gameSession.remove(session);
     }
 
@@ -72,32 +74,23 @@ public class GamesSocket {
         switch (SimpleMessage.of(content).getKind()) {
             case GAME_UPDATE -> {
                 Move move = MoveMessage.of(content).getMove().toMove();
-                GameSession gameSession = gamesSessionByPlayer.get(session);
+                GameSession gameSession = gameSessionByPlayer.get(session);
                 boolean moved = gameSession.play(session, move);
                 gameSession.updateClients(moved);
             }
             case SURRENDER -> {
-                GameSession gameSession = gamesSessionByPlayer.get(session);
+                GameSession gameSession = gameSessionByPlayer.get(session);
                 boolean gameEnded = gameSession.surrender(session);
                 gameSession.updateClients(gameEnded);
+            }
+            case RESTART -> {
+                GameSession gameSession = gameSessionByPlayer.get(session);
+                boolean gameRestarted = gameSession.restart();
+                gameSession.updateClients(gameRestarted);
             }
             default -> throw new UnexpectedMessageException(content);
         }
 
-    }
-
-
-    @Synchronized("gameSessionByGameId")
-    private GameSession createGameSession(UUID gameId) {
-        GameSession gameSession = new GameSession();
-        gameSessionByGameId.put(gameId, gameSession);
-        return gameSession;
-    }
-
-    @Synchronized("gameSessionByGameId")
-    @Scheduled(every = "1m")
-    public void cleanupGames() {
-        gameSessionByGameId.entrySet().removeIf(entry -> entry.getValue().isEmpty());
     }
 
 }
