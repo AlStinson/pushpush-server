@@ -16,7 +16,8 @@ public class SyncHashMap<K, V> {
 
     @Locked.Write
     public V getOrPut(K key, V value) {
-        return hashMap.putIfAbsent(key, value);
+        hashMap.putIfAbsent(key, value);
+        return hashMap.get(key);
     }
 
     @Locked.Write
