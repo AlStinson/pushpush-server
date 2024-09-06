@@ -4,6 +4,7 @@ import com.pushpush.core.Move;
 import com.pushpush.server.dto.message.MoveMessage;
 import com.pushpush.server.dto.message.SimpleMessage;
 import com.pushpush.server.dto.message.StringMessage;
+import com.pushpush.server.exception.GameDoNotExists;
 import com.pushpush.server.exception.SpotNotAvailableException;
 import com.pushpush.server.exception.UnexpectedMessageException;
 import com.pushpush.server.model.GameSession;
@@ -40,11 +41,11 @@ public class GamesSocket {
     public void onOpen(Session session, @PathParam("gameId") String gameIdString, @PathParam("kind") String kind) {
         log.info("{} connected to game {} as {} ", session.getId(), gameIdString, kind);
         UUID gameId = UUID.fromString(gameIdString);
-        GameSession gameSession =  gameSessionByGameId.getOrPut(gameId, new GameSession());
+        GameSession gameSession =  gameSessionByGameId.get(gameId);
+        if (gameSession == null) throw new GameDoNotExists(gameId);
         boolean added = gameSession.addAs(session, kind);
         if (!added) throw new SpotNotAvailableException(gameId, kind);
         gameSessionByPlayer.put(session, gameSession);
-        gameSession.updateClients(false);
     }
 
     @OnClose
@@ -72,21 +73,22 @@ public class GamesSocket {
     public void onMessage(Session session, String content) {
         log.trace("Message " + session.getId() + " " + content);
         switch (SimpleMessage.of(content).getKind()) {
-            case GAME_UPDATE -> {
+            case MOVE -> {
                 Move move = MoveMessage.of(content).getMove().toMove();
                 GameSession gameSession = gameSessionByPlayer.get(session);
-                boolean moved = gameSession.play(session, move);
-                gameSession.updateClients(moved);
+                gameSession.play(session, move);
+            }
+            case GAME_UPDATE -> {
+                GameSession gameSession = gameSessionByPlayer.get(session);
+                gameSession.updateClients(false);
             }
             case SURRENDER -> {
                 GameSession gameSession = gameSessionByPlayer.get(session);
-                boolean gameEnded = gameSession.surrender(session);
-                gameSession.updateClients(gameEnded);
+                gameSession.surrender(session);
             }
             case RESTART -> {
                 GameSession gameSession = gameSessionByPlayer.get(session);
-                boolean gameRestarted = gameSession.restart();
-                gameSession.updateClients(gameRestarted);
+                gameSession.restart();
             }
             default -> throw new UnexpectedMessageException(content);
         }

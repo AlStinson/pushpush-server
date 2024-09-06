@@ -26,6 +26,12 @@ public class SyncHashMap<K, V> {
     }
 
     @Locked.Write
+    public boolean putIfAbsent(K key, V value) {
+        hashMap.putIfAbsent(key, value);
+        return value == hashMap.get(key);
+    }
+
+    @Locked.Write
     public V remove(K key) {
         return hashMap.remove(key);
     }

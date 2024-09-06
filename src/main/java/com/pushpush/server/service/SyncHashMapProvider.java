@@ -10,14 +10,17 @@ import java.util.UUID;
 
 public class SyncHashMapProvider {
 
+    public static final String GAME_SESSION_BY_PLAYER = "gameSessionByPlayer";
+    public static final String GAME_SESSION_BY_GAME_ID = "gameSessionByGameId";
+
     @ApplicationScoped
-    @Named("gameSessionByPlayer")
+    @Named(GAME_SESSION_BY_PLAYER)
     public SyncHashMap<Session, GameSession> gameSessionByPlayer() {
         return new SyncHashMap<>();
     }
 
     @ApplicationScoped
-    @Named("gameSessionByGameId")
+    @Named(GAME_SESSION_BY_GAME_ID)
     public SyncHashMap<UUID, GameSession> gameSessionByGameId() {
         return new SyncHashMap<>();
     }

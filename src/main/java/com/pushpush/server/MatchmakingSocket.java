@@ -3,6 +3,7 @@ package com.pushpush.server;
 import com.pushpush.server.dto.message.GameInfoMessage;
 import com.pushpush.server.dto.message.StringMessage;
 import com.pushpush.server.exception.UnexpectedMessageException;
+import com.pushpush.server.service.CreateGameService;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.websocket.OnClose;
@@ -28,6 +29,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Slf4j
 public class MatchmakingSocket {
     private final LinkedBlockingQueue<Session> queue = new LinkedBlockingQueue<>();
+    private final CreateGameService createGameService;
 
     @OnOpen
     @Locked
@@ -62,16 +64,16 @@ public class MatchmakingSocket {
     }
 
     @Scheduled(every = "5s")
-    @Synchronized("queue")
+    @Locked
     public void findMatch() {
         while (queue.size() > 1) {
             List<Session> players = new LinkedList<>();
             players.add(queue.remove());
             players.add(queue.remove());
             Collections.shuffle(players);
-            UUID gameId = UUID.randomUUID();
             Session white = players.remove(0);
             Session black = players.remove(0);
+            UUID gameId = createGameService.createGame(null);
             GameInfoMessage.of(gameId, "white").sendTo(white);
             GameInfoMessage.of(gameId, "black").sendTo(black);
             log.info("Game found between {} and {}", white.getId(), black.getId());
