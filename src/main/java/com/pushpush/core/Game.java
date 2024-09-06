@@ -1,6 +1,5 @@
 package com.pushpush.core;
 
-import com.pushpush.core.utils.zone.Cross;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
@@ -142,7 +141,7 @@ public class Game {
         Piece piece2 = board.get(move.getFinalPosition());
         if (piece2 != BALL) return false;
         if (!BORDER_ZONE.contains(move.getInitialPosition())) return false;
-        if (!move.getInitialPosition().isInZone(new Cross(move.getFinalPosition()))) return false;
+        if (!BORDER_ZONE.contains(move.getFinalPosition())) return false;
         if (board.containsKey(move.getNextMove().getFinalPosition())) return false;
         return true;
     }
